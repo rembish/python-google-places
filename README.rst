@@ -86,6 +86,17 @@ Code is easier to understand than words, so let us dive right in ::
         print error_detail
 
 
+    # Autocompleating user input
+    query_result = google_places.autocomplete(
+        'Czech Repub', types=types.TYPE_REGIONS
+    )
+
+    for place in query_result.places:
+        print place.name # Place predicted name
+        print place.description # Full place description
+        print place.types # Place type information (i.e. country, or city, or geocode)
+
+
 Reference
 ----------
 
@@ -128,6 +139,25 @@ Reference
                         using a location sensor (default False)
 
             types    -- An optional list of types, restricting the results to Places (default [])
+
+      autocomplete(query, **kwargs)
+        Returns googleplaces.GooglePlacesAutocompleteResult
+          query -- The text string on which to search.
+          kwargs:
+            language -- The language in which to return results (default lang.ENGLISH)
+            country  -- Restricts your results to places within country (default None - no restrictions).
+                        Country should be in ISO 3166-1 Alpha-2 form
+            lat_lng  -- The point around which you wish to retrieve Place information.
+                        A dict containing the following keys: lat, lng
+                        (default None)
+            radius   -- The radius (in meters) around the location/lat_lng to
+                        restrict the search to. The maximum is 50000 meters.
+                        (default 3200)
+            sensor   -- Indicates whether or not the Place request came from a
+                        device using a location sensor (default False).
+            types    -- The types of Place results to return. (default None - any results)
+                        May contain next values: types.TYPE_GEOCODE, types.TYPE_ESTABLISHMENT,
+                        types.TYPE_REGIONS, types.TYPE_CITIES
 
 
       get_place(reference)
@@ -185,6 +215,10 @@ Reference
       html_attributions()
         Returns a List of String html attributions that must be displayed along with
         the search results.
+
+    googleplaces.GooglePlacesAutocompleteResult
+      places
+        A list of googleplaces.Prediction instances.
 
 
     googleplaces.Place
@@ -262,3 +296,32 @@ Reference
       get_details()
         Retrieves full information on the place matching the reference.
 
+
+    googleplaces.Prediction
+      id
+        contains a unique stable identifier denoting this place. This identifier may not be
+        used to retrieve information about this place, but can be used to consolidate data
+        about this Place, and to verify the identity of a Place across separate searches.
+
+      description
+        contains the human-readable name for the returned result. For establishment results,
+        this is usually the business name.
+
+      terms
+        contains an array of terms identifying each section of the returned description (a
+        section of the description is generally terminated with a comma). Each entry in the
+        array has a value field, containing the text of the term, and an offset field, defining
+        the start position of this term in the description, measured in Unicode characters.
+
+      matched
+        contains an offset value and a length. These describe the location of the entered term
+        in the prediction result text, so that the term can be highlighted if desired.
+
+      reference
+        contains a unique token that you can use to retrieve additional information about this
+        place in a Place Details request. You can store this token and use it at any time in
+        future to refresh cached data about this Place, but the same token is not guaranteed
+        to be returned for any given Place across different searches.
+
+      get_details()
+        Retrieves full information on the place matching the reference.

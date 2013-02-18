@@ -591,3 +591,14 @@ class Prediction(object):
         self.name = self.terms[0]['value']
         self.reference = prediction_data['reference']
         self.matched = prediction_data['matched_substrings']
+
+    def get_details(self):
+        """Retrieves full information on the place matching the reference.
+
+        Further attributes will be made available on the instance once this
+        method has been invoked.
+        """
+        if self._details is None:
+            self._details = _get_place_details(
+                self.reference, self._query_instance.api_key,
+                self._query_instance.sensor)

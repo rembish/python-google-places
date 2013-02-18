@@ -118,6 +118,7 @@ class GooglePlaces(object):
 
     GEOCODE_API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?'
     QUERY_API_URL = 'https://maps.googleapis.com/maps/api/place/search/json?'
+    AUTOCOMPLETE_API_URL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?'
     DETAIL_API_URL = ('https://maps.googleapis.com/maps/api/place/details/' +
                       'json?')
     CHECKIN_API_URL = ('https://maps.googleapis.com/maps/api/place/check-in/' +
@@ -150,7 +151,7 @@ class GooglePlaces(object):
         location -- A human readable location, e.g 'London, England'
                     (default None)
         language -- The language code, indicating in which language the
-                    results should be returned, if possble. (default lang.ENGLISH)
+                    results should be returned, if possible. (default lang.ENGLISH)
         lat_lng  -- A dict containing the following keys: lat, lng
                     (default None)
         name     -- A term to be matched against the names of the Places.
@@ -198,6 +199,53 @@ class GooglePlaces(object):
                 GooglePlaces.QUERY_API_URL, self._request_params)
         _validate_response(url, places_response)
         return GooglePlacesSearchResult(self, places_response)
+
+    def autocomplete(self, query, language=lang.ENGLISH, country=None, lat_lng=None, radius=3200,
+                     sensor=False, types=None):
+        """Returns Place information based on text search terms, and, optionally, geographic bounds.
+
+        argument:
+        query -- The text string on which to search.
+
+        keyword arguments:
+        language -- The language in which to return results (default lang.ENGLISH)
+        country  -- Restricts your results to places within country (default None - no restrictions).
+                    Country should be in ISO 3166-1 Alpha-2 form
+        lat_lng  -- The point around which you wish to retrieve Place information.
+                    A dict containing the following keys: lat, lng
+                    (default None)
+        radius   -- The radius (in meters) around the location/lat_lng to
+                    restrict the search to. The maximum is 50000 meters.
+                    (default 3200)
+        sensor   -- Indicates whether or not the Place request came from a
+                    device using a location sensor (default False).
+        types    -- The types of Place results to return. (default None - any results)
+                    May contain next values: types.TYPE_GEOCODE, types.TYPE_ESTABLISHMENT,
+                    types.TYPE_REGIONS, types.TYPE_CITIES
+        """
+
+        self._sensor = sensor
+        self._lat_lng = lat_lng
+        radius = (radius if radius <= GooglePlaces.MAXIMUM_SEARCH_RADIUS
+                  else GooglePlaces.MAXIMUM_SEARCH_RADIUS)
+
+        self._request_params = {'input': query}
+        if self._lat_lng:
+            self._request_params['location'] = '%(lat)s,%(lng)s' % self._lat_lng
+            self._request_params['radius'] = radius
+        if language is not None:
+            self._request_params['language'] = language
+        if types is not None:
+            self._request_params['types'] = types
+        if country is not None:
+            self._request_params['components'] = 'country:%s' % country
+        self._add_required_param_keys()
+
+        url, places_response = _fetch_remote_json(
+            GooglePlaces.AUTOCOMPLETE_API_URL, self._request_params)
+        _validate_response(url, places_response)
+        return GooglePlacesAutocompleteResult(self, places_response)
+
 
     def checkin(self, reference, sensor=False):
         """Checks in a user to a place.
@@ -522,3 +570,24 @@ class Place(object):
             error_detail = ('The attribute requested is only available after ' +
                     'an explicit call to get_details() is made.')
             raise GooglePlacesAttributeError, error_detail
+
+
+class GooglePlacesAutocompleteResult(object):
+    """Wrapper around the Goolge Places Autocomplete API query JSON response."""
+
+    def __init__(self, query_instance, response):
+        self.places = [
+            Prediction(query_instance, prediction) for prediction in response['predictions']
+        ]
+
+class Prediction(object):
+    def __init__(self, query_instance, prediction_data):
+        self._query_instance = query_instance
+
+        self.id = prediction_data['id']
+        self.types = prediction_data['types']
+        self.description = prediction_data['description']
+        self.terms = prediction_data['terms']
+        self.name = self.terms[0]['value']
+        self.reference = prediction_data['reference']
+        self.matched = prediction_data['matched_substrings']

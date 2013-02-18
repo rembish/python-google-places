@@ -32,7 +32,7 @@ TYPE_CLOTHING_STORE = 'clothing_store'
 TYPE_CONVENIENCE_STORE = 'convenience_store'
 TYPE_COURTHOUSE = 'courthouse'
 TYPE_DENTIST = 'dentist'
-TYPE_DEPARTMENT_STORE = 'department_store'
+TYPE_DEPARTMENT_STORE = 'depar_store'
 TYPE_DOCTOR = 'doctor'
 TYPE_ELECTRICIAN = 'electrician'
 TYPE_ELECTRONICS_STORE = 'electronics_store'
@@ -134,3 +134,8 @@ TYPE_SUBLOCALITY_LEVEL_2 = 'sublocality_level_2'
 TYPE_SUBLOCALITY_LEVEL_1 = 'sublocality_level_1'
 TYPE_SUBPREMISE = 'subpremise'
 TYPE_TRANSIT_STATION = 'transit_station'
+
+# The following types supported by the Places Autocomplete API
+
+TYPE_REGIONS = '(regions)'
+TYPE_CITIES = '(cities)'

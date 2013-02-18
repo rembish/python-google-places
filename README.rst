@@ -325,3 +325,10 @@ Reference
 
       get_details()
         Retrieves full information on the place matching the reference.
+
+
+Contributors
+-----------------
+* `Alex Rembish`_
+
+.. _Alex Rembish: http://rembish.org/

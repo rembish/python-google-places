@@ -27,7 +27,7 @@ import types
 
 __all__ = ['GooglePlaces', 'GooglePlacesError', 'GooglePlacesAttributeError',
            'geocode_location']
-__version__ = '0.9.1'
+__version__ = '0.9.3'
 __author__ = 'Samuel Adu'
 __email__ = 'sam@slimkrazy.com'
 
